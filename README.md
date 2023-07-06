@@ -5,21 +5,52 @@
 [![Coverage Status](https://coveralls.io/repos/github/cisagov/pe-source/badge.svg?branch=develop)](https://coveralls.io/github/cisagov/pe-source?branch=develop)
 [![Known Vulnerabilities](https://snyk.io/test/github/cisagov/pe-source/develop/badge.svg)](https://snyk.io/test/github/cisagov/pe-source)
 
-This is a generic skeleton project that can be used to quickly get a
-new [cisagov](https://github.com/cisagov) Python library GitHub
-project started.  This skeleton project contains [licensing
-information](LICENSE), as well as
-[pre-commit hooks](https://pre-commit.com) and
-[GitHub Actions](https://github.com/features/actions) configurations
-appropriate for a Python library project.
+This package is used to gather and store data for the CISA Posture & Exposure Reports
+[P&E Reports] (https://github.com/cisagov/pe-reports). 
 
-## New Repositories from a Skeleton ##
+Data of interest include *Exposed Credentials, Domain Masquerading, Malware,
+Inferred Vulnerabilities and the Dark Web*. The data collected for the reports
+is gathered on the 1st and 15th of each month.
 
-Please see our [Project Setup guide](https://github.com/cisagov/development-guide/tree/develop/project_setup)
-for step-by-step instructions on how to start a new repository from
-a skeleton. This will save you time and effort when configuring a
-new repository!
+## Requirements ##
 
+- [Python Environment](CONTRIBUTING.md#creating-the-python-virtual-environment)
+
+## Installation ##
+
+- `git clone https://github.com/cisagov/pe-source.git`
+
+- Add database/API credentials to `src/pe_source/data/pe_db/database.ini`
+
+- `pip install -e .`
+
+## Run P&E Source ##
+
+```console
+Usage:
+    pe-source DATA_SOURCE [--log-level=LEVEL] [--orgs=ORG_LIST] [--cybersix-methods=METHODS] [--soc_med_included]
+
+Arguments:
+  DATA_SOURCE                       Source to collect data from. Valid values are "cybersixgill",
+                                    "dnstwist", "hibp", "intelx", and "shodan".
+
+Options:
+  -h --help                         Show this message.
+  -v --version                      Show version information.
+  -l --log-level=LEVEL              If specified, then the log level will be set to
+                                    the specified value.  Valid values are "debug", "info",
+                                    "warning", "error", and "critical". [default: info]
+  -o --orgs=ORG_LIST                A comma-separated list of orgs to collect data for.
+                                    If not specified, data will be collected for all
+                                    orgs in the pe database. Orgs in the list must match the
+                                    IDs in the cyhy-db. E.g. DHS,DHS_ICE,DOC
+                                    [default: all]
+  -csg --cybersix-methods=METHODS   A comma-separated list of cybersixgill methods to run.
+                                    If not specified, all will run. Valid values are "alerts",
+                                    "credentials", "mentions", "topCVEs". E.g. alerts,mentions.
+                                    [default: all]
+
+```
 ## Contributing ##
 
 We welcome contributions!  Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for
