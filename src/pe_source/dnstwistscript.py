@@ -13,7 +13,7 @@ import dshield
 import psycopg2.extras as extras
 import requests
 
-from .data.pe_db.db_query import (
+from .data.pe_db.db_query_source import (
     addSubdomain,
     connect,
     get_data_source_uid,
@@ -185,7 +185,7 @@ def run_dnstwist(orgs_list):
                 root_dict = org_root_domains(PE_conn, pe_org_uid)
                 domain_list = []
                 perm_list = []
-                for root in root_dict:
+                for root_index, root in root_dict.iterrows():
                     root_domain = root["root_domain"]
                     if root_domain == "Null_Root":
                         continue

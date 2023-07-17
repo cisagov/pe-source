@@ -11,13 +11,26 @@ import requests
 import shodan
 
 # Configuration
-REPORT_DB_CONFIG = files("pe_reports").joinpath("data/database.ini")
+REPORT_DB_CONFIG = files("pe_source").joinpath("data/database.ini")
 
 
 # Setup logging to central file
 # To avoid a circular reference error which occurs when calling app.config["LOGGER"]
 # we are directly calling the logger here
 LOGGER = logging.getLogger(__name__)
+
+
+def config(filename=REPORT_DB_CONFIG, section="postgres"):
+    """Parse Postgres configuration details from database configuration file."""
+    parser = ConfigParser()
+    parser.read(filename, encoding="utf-8")
+    db = dict()
+    if parser.has_section(section):
+        for key, value in parser.items(section):
+            db[key] = value
+    else:
+        raise Exception(f"Section {section} not found in {filename}")
+    return db
 
 
 def shodan_api_init():
@@ -100,3 +113,25 @@ def get_params(section):
             "Database.ini file not found at this path: {}".format(REPORT_DB_CONFIG)
         )
     return params
+
+
+def dnsmonitor_token():
+    """Retreive the DNSMonitor bearer token."""
+    section = "dnsmonitor"
+    params = get_params(section)
+    client_id, client_secret = params[0][1], params[1][1]
+    scope = "DNSMonitorAPI"
+    url = "https://argosecure.com/dhs/connect/token"
+
+    payload = {
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "grant_type": "client_credentials",
+        "scope": scope,
+    }
+    headers = {}
+    files = []
+    response = requests.request(
+        "POST", url, headers=headers, data=payload, files=files
+    ).json()
+    return response["access_token"]

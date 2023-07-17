@@ -10,7 +10,7 @@ from .data.dnsmonitor.source import (
     get_monitored_domains,
 )
 from .data.pe_db.config import dnsmonitor_token
-from .data.pe_db.db_query import (
+from .data.pe_db.db_query_source import (
     addSubdomain,
     execute_dnsmonitor_alert_data,
     execute_dnsmonitor_data,

@@ -1,10 +1,18 @@
 """Cybersixgill API calls."""
+
+# Standard Python Libraries
+import logging
+import time
+
 # Third-Party Libraries
 import pandas as pd
 import requests
+from retry import retry
 
 # cisagov Libraries
 from pe_source.data.pe_db.config import cybersix_token
+
+LOGGER = logging.getLogger(__name__)
 
 
 def get_sixgill_organizations():
@@ -32,14 +40,23 @@ def org_assets(org_id):
         "Authorization": "Bearer " + auth,
     }
     payload = {"organization_id": org_id}
+    count = 1
+    while count < 7:
+        try:
+            resp = requests.get(url, headers=headers, params=payload).json()
+            break
+        except Exception:
+            time.sleep(5)
+            LOGGER.info("Error. Trying query post again...")
+            count += 1
+            continue
     resp = requests.get(url, headers=headers, params=payload).json()
     return resp
 
 
-def intel_post(query, frm, scroll, result_size):
+def intel_post(auth, query, frm, scroll, result_size):
     """Get intel items - advanced variation."""
     url = "https://api.cybersixgill.com/intel/intel_items"
-    auth = cybersix_token()
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -61,10 +78,9 @@ def intel_post(query, frm, scroll, result_size):
     return resp
 
 
-def alerts_list(organization_id, fetch_size, offset):
+def alerts_list(auth, organization_id, fetch_size, offset):
     """Get actionable alerts by ID using organization_id with optional filters."""
     url = "https://api.cybersixgill.com/alerts/actionable-alert"
-    auth = cybersix_token()
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -79,10 +95,9 @@ def alerts_list(organization_id, fetch_size, offset):
     return resp
 
 
-def alerts_count(organization_id):
+def alerts_count(auth, organization_id):
     """Get the total read and unread actionable alerts by organization."""
     url = "https://api.cybersixgill.com/alerts/actionable_alert/count"
-    auth = cybersix_token()
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -93,10 +108,9 @@ def alerts_count(organization_id):
     return resp
 
 
-def alerts_content(organization_id, alert_id):
+def alerts_content(auth, organization_id, alert_id):
     """Get total alert content."""
     url = f"https://api.cybersixgill.com/alerts/actionable_alert_content/{alert_id}"
-    auth = cybersix_token()
     headers = {
         "Content-Type": "application/json",
         "Cache-Control": "no-cache",
@@ -112,23 +126,43 @@ def alerts_content(organization_id, alert_id):
             content = content["description"]
         else:
             content = ""
-    except Exception:
+    except Exception as e:
+        LOGGER.error("Failed getting content snip: %s", e)
         content = ""
     return content
 
 
-def dve_top_cves(size):
+def dve_top_cves():
     """Get data about a specific CVE."""
-    url = "https://api.cybersixgill.com/dve_enrich/top_cves"
+    url = "https://api.cybersixgill.com/dve_enrich/summary"
     auth = cybersix_token()
     headers = {
         "Content-Type": "application/x-www-form-urlencoded",
         "Cache-Control": "no-cache",
         "Authorization": "Bearer " + auth,
     }
-    payload = {"size": size}
-    resp = requests.get(url, headers=headers, params=payload).json()
-    return resp
+    resp = requests.get(url, headers=headers).json()
+    sorted_values = sorted(
+        resp["values"],
+        key=lambda x: x["score"]["sixgill"]["current"]
+        if x["score"]["sixgill"]["current"] is not None
+        else float("-inf"),
+        reverse=True,
+    )
+    top_10_cves = sorted_values[:10]
+
+    # Printing the top 10 CVEs
+    clean_top_10_cves = []
+    for cve in top_10_cves:
+        print(cve["id"], "- Current rating:", cve["score"]["sixgill"]["current"])
+        print(cve)
+        clean_cve = {
+            "cve_id": cve["id"],
+            "dynamic_rating": cve["score"]["sixgill"]["current"],
+            "nvd_base_score": cve["score"]["nvd"]["score"],
+        }
+        clean_top_10_cves.append(clean_cve)
+    return clean_top_10_cves
 
 
 def credential_auth(params):
@@ -142,3 +176,37 @@ def credential_auth(params):
     }
     resp = requests.get(url, headers=headers, params=params).json()
     return resp
+
+
+@retry(tries=10, delay=1, logger=LOGGER)
+def get_bulk_cve_resp(cve_list):
+    """
+    Make API call to retrieve the corresponding info for a list of CVE names (10 max).
+
+    Args:
+        cve_list: list of cve names (i.e. ['CVE-2022-123', 'CVE-2022-456'...])
+
+    Returns:
+        Raw API response for CVE list
+
+    """
+    c6g_url = "https://api.cybersixgill.com/dve_enrich/enrich"
+    auth = cybersix_token()
+    headers = {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache",
+        "Authorization": "Bearer " + auth,
+    }
+    body = {
+        "filters": {"ids": cve_list},
+        "results_size": len(cve_list),
+        "from_index": 0,
+    }
+    # Make API call for specified CVE list
+    try:
+        # Attempt API call
+        resp = requests.post(c6g_url, headers=headers, json=body).json()
+        # Return response
+        return resp
+    except Exception as e:
+        LOGGER.error("Error making bulk CVE API call: %s", e)

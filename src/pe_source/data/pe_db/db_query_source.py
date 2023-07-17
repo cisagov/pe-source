@@ -2,6 +2,7 @@
 
 # Standard Python Libraries
 from datetime import datetime
+import logging
 import sys
 
 # Third-Party Libraries
@@ -11,11 +12,10 @@ from psycopg2 import OperationalError
 import psycopg2.extras as extras
 
 # cisagov Libraries
-from pe_reports import app
-from pe_reports.data.config import config
+from pe_source.data.pe_db.config import config
 
 # Setup logging to central file
-LOGGER = app.config["LOGGER"]
+LOGGER = logging.getLogger(__name__)
 
 CONN_PARAMS_DIC = config()
 
@@ -482,3 +482,43 @@ def insert_intelx_credentials(df):
         LOGGER.info(error)
         conn.rollback()
     cursor.close()
+
+
+def execute_dnsmonitor_data(dataframe, table):
+    """Insert DNSMonitor data."""
+    conn = connect()
+    tpls = [tuple(x) for x in dataframe.to_numpy()]
+    cols = ",".join(list(dataframe.columns))
+    sql = """INSERT INTO {}({}) VALUES %s
+    ON CONFLICT (domain_permutation, organizations_uid)
+    DO UPDATE SET ipv4 = EXCLUDED.ipv4,
+        ipv6 = EXCLUDED.ipv6,
+        date_observed = EXCLUDED.date_observed,
+        mail_server = EXCLUDED.mail_server,
+        name_server = EXCLUDED.name_server,
+        sub_domain_uid = EXCLUDED.sub_domain_uid,
+        data_source_uid = EXCLUDED.data_source_uid;"""
+    cursor = conn.cursor()
+    extras.execute_values(
+        cursor,
+        sql.format(table, cols),
+        tpls,
+    )
+    conn.commit()
+
+
+def execute_dnsmonitor_alert_data(dataframe, table):
+    """Insert DNSMonitor alerts."""
+    conn = connect()
+    tpls = [tuple(x) for x in dataframe.to_numpy()]
+    cols = ",".join(list(dataframe.columns))
+    sql = """INSERT INTO {}({}) VALUES %s
+    ON CONFLICT (alert_type, sub_domain_uid, date, new_value)
+    DO NOTHING;"""
+    cursor = conn.cursor()
+    extras.execute_values(
+        cursor,
+        sql.format(table, cols),
+        tpls,
+    )
+    conn.commit()

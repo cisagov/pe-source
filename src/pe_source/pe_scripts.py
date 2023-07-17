@@ -5,7 +5,7 @@ Usage:
 
 Arguments:
   DATA_SOURCE                       Source to collect data from. Valid values are "cybersixgill",
-                                    "dnstwist", "hibp", "intelx", and "shodan".
+                                    "dnstwist", "hibp", "intelx", "dnsmonitor", and "shodan".
 
 Options:
   -h --help                         Show this message.
@@ -22,6 +22,7 @@ Options:
                                     If not specified, all will run. Valid values are "alerts",
                                     "credentials", "mentions", "topCVEs". E.g. alerts,mentions.
                                     [default: all]
+  -sc --soc_med_included            Include social media posts from cybersixgill in data collection.
 """
 
 # Standard Python Libraries
@@ -34,10 +35,11 @@ import docopt
 from schema import And, Schema, SchemaError, Use
 
 # cisagov Libraries
-import pe_reports
+import pe_source
 
 from ._version import __version__
 from .cybersixgill import Cybersixgill
+from .dnsmonitor import DNSMonitor
 from .dnstwistscript import run_dnstwist
 from .intelx_identity import IntelX
 from .shodan import Shodan
@@ -45,7 +47,7 @@ from .shodan import Shodan
 LOGGER = logging.getLogger(__name__)
 
 
-def run_pe_script(source, orgs_list, cybersix_methods):
+def run_pe_script(source, orgs_list, cybersix_methods, soc_med_included):
     """Collect data from the source specified."""
     # If not "all", separate orgs string into a list of orgs
     if orgs_list != "all":
@@ -59,11 +61,14 @@ def run_pe_script(source, orgs_list, cybersix_methods):
     LOGGER.info("Running %s on these orgs: %s", source, orgs_list)
 
     if source == "cybersixgill":
-        cybersix = Cybersixgill(orgs_list, cybersix_methods)
+        cybersix = Cybersixgill(orgs_list, cybersix_methods, soc_med_included)
         cybersix.run_cybersixgill()
     elif source == "shodan":
         shodan = Shodan(orgs_list)
         shodan.run_shodan()
+    elif source == "dnsmonitor":
+        dnsMonitor = DNSMonitor(orgs_list)
+        dnsMonitor.run_dnsMonitor()
     elif source == "dnstwist":
         run_dnstwist(orgs_list)
     elif source == "intelx":
@@ -105,7 +110,7 @@ def main():
 
     # Set up logging
     logging.basicConfig(
-        filename=pe_reports.CENTRAL_LOGGING_FILE,
+        filename=pe_source.CENTRAL_LOGGING_FILE,
         filemode="a",
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%m/%d/%Y %I:%M:%S",
@@ -117,6 +122,7 @@ def main():
         validated_args["DATA_SOURCE"],
         validated_args["--orgs"],
         validated_args["--cybersix-methods"],
+        validated_args["--soc_med_included"],
     )
 
     # Stop logging and clean up
