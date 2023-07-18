@@ -5,7 +5,6 @@
 # Python package.
 # Standard Python Libraries
 import logging
-from logging.handlers import RotatingFileHandler
 
 from ._version import __version__  # noqa: F401
 

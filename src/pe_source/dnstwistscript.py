@@ -49,7 +49,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except:
+            except Exception:
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -64,7 +64,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except:
+        except Exception:
             dshield_attacks = 0
             dshield_count = 0
 
@@ -83,7 +83,8 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except:
+            except Exception as e:
+                print(e)
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -96,7 +97,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except:
+        except Exception:
             dshield_attacks = 0
             dshield_count = 0
 
@@ -214,10 +215,10 @@ def run_dnstwist(orgs_list):
                         )
                         if domain_dict is not None:
                             domain_list.append(domain_dict)
-            except Exception:
+            except Exception as e:
                 # TODO: Create custom exceptions.
                 # Issue 265: https://github.com/cisagov/pe-reports/issues/265
-                LOGGER.info("Failed selecting DNSTwist data.")
+                LOGGER.info("Failed selecting DNSTwist data: %s", e)
                 failures.append(org_name)
                 LOGGER.info(traceback.format_exc())
 
