@@ -193,7 +193,7 @@ def run_dnstwist(orgs_list):
                     LOGGER.info("\tRunning on root domain: %s", root["root_domain"])
 
                     with open(
-                        "dnstwist_output.txt", "w"
+                        "src/pe_source/data/dnstwist_output.txt", "w"
                     ) as f, contextlib.redirect_stdout(f):
                         finalorglist = execute_dnstwist(root_domain)
 

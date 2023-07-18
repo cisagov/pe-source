@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 # Third-Party Libraries
 import pandas as pd
-from pe_reports import CENTRAL_LOGGING_FILE
 import pytest
 
 # cisagov Libraries
+from pe_source import CENTRAL_LOGGING_FILE
 import pe_source.cybersixgill
 import pe_source.data.sixgill.api
 import pe_source.dnstwistscript
@@ -215,10 +215,10 @@ def test_cybersix_methods_all(
         mock_get_source_id.return_value = "source_uid"
         pe_source.pe_scripts.main()
         mock_sixgill_alerts.assert_called_with(
-            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid"
+            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid", False
         )
         mock_sixgill_mentions.assert_called_with(
-            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid"
+            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid", False
         )
         mock_sixgill_credentials.assert_called_with(
             "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid"
@@ -256,7 +256,7 @@ def test_cybersix_methods_alerts(
         mock_get_source_id.return_value = "source_uid"
         pe_source.pe_scripts.main()
         mock_sixgill_alerts.assert_called_with(
-            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid"
+            "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid", False
         )
 
 
@@ -288,7 +288,7 @@ def test_cybersix_credentials(
     ]
 
     result = pe_source.cybersixgill.Cybersixgill(
-        ["TestOrg"], ["credentials"]
+        ["TestOrg"], ["credentials"], False
     ).get_credentials("org_id", "sixgill_org_id", "pe_org_uid", "source_uid")
 
     # Assert insert breaches function is called with the correct data

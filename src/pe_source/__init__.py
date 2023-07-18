@@ -19,11 +19,10 @@ if DEBUG is True:
 else:
     level = "INFO"
 
-# Logging will rotate at 2GB
 logging.basicConfig(
     filename=CENTRAL_LOGGING_FILE,
     filemode="a",
-    format="%(name)s - %(levelname)s - %(message)s",
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     datefmt="%m/%d/%Y %I:%M:%S",
     level=level,
 )
