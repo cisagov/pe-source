@@ -1,11 +1,11 @@
 """Use DNS twist to fuzz domain names and cross check with a blacklist."""
 # Standard Python Libraries
-import contextlib
 import datetime
 import json
 import logging
 import pathlib
 import traceback
+import contextlib
 
 # Third-Party Libraries
 import dnstwist
@@ -17,9 +17,9 @@ from .data.pe_db.db_query_source import (
     addSubdomain,
     connect,
     get_data_source_uid,
-    get_orgs,
     getSubdomain,
     org_root_domains,
+    get_orgs,
 )
 
 date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -49,7 +49,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except Exception:
+            except:
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -64,7 +64,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except Exception:
+        except:
             dshield_attacks = 0
             dshield_count = 0
 
@@ -83,8 +83,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except Exception as e:
-                print(e)
+            except:
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -97,7 +96,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except Exception:
+        except:
             dshield_attacks = 0
             dshield_count = 0
 
@@ -186,7 +185,7 @@ def run_dnstwist(orgs_list):
                 root_dict = org_root_domains(PE_conn, pe_org_uid)
                 domain_list = []
                 perm_list = []
-                for root_index, root in root_dict.iterrows():
+                for root in root_dict:
                     root_domain = root["root_domain"]
                     if root_domain == "Null_Root":
                         continue
@@ -215,10 +214,10 @@ def run_dnstwist(orgs_list):
                         )
                         if domain_dict is not None:
                             domain_list.append(domain_dict)
-            except Exception as e:
+            except Exception:
                 # TODO: Create custom exceptions.
                 # Issue 265: https://github.com/cisagov/pe-reports/issues/265
-                LOGGER.info("Failed selecting DNSTwist data: %s", e)
+                LOGGER.info("Failed selecting DNSTwist data.")
                 failures.append(org_name)
                 LOGGER.info(traceback.format_exc())
 

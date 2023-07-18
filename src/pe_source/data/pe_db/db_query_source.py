@@ -1,8 +1,10 @@
+#!/usr/bin/env python
 """Query the PE PostgreSQL database."""
 
 # Standard Python Libraries
 from datetime import datetime
 import logging
+import socket
 import sys
 
 # Third-Party Libraries
@@ -65,14 +67,34 @@ def get_orgs():
 def get_ips(org_uid):
     """Get IP data."""
     conn = connect()
-    sql = """SELECT wa.asset as ip_address
-            FROM web_assets wa
-            WHERE wa.organizations_uid = %(org_uid)s
-            and wa.report_on = True
-            """
-    df = pd.read_sql(sql, conn, params={"org_uid": org_uid})
-    ips = list(df["ip_address"].values)
+    sql1 = """SELECT i.ip_hash, i.ip, ct.network FROM ips i
+    JOIN cidrs ct on ct.cidr_uid = i.origin_cidr
+    JOIN organizations o on o.organizations_uid = ct.organizations_uid
+    where o.organizations_uid = %(org_uid)s
+    and i.origin_cidr is not null
+    and i.shodan_results is True;"""
+    df1 = pd.read_sql(sql1, conn, params={"org_uid": org_uid})
+    ips1 = list(df1["ip"].values)
+
+    sql2 = """select i.ip_hash, i.ip
+    from ips i
+    join ips_subs is2 ON i.ip_hash = is2.ip_hash
+    join sub_domains sd on sd.sub_domain_uid = is2.sub_domain_uid
+    join root_domains rd on rd.root_domain_uid = sd.root_domain_uid
+    JOIN organizations o on o.organizations_uid = rd.organizations_uid
+    where o.organizations_uid = %(org_uid)s
+    and i.shodan_results is True;"""
+    df2 = pd.read_sql(sql2, conn, params={"org_uid": org_uid})
+    ips2 = list(df2["ip"].values)
+
+    in_first = set(ips1)
+    in_second = set(ips2)
+
+    in_second_but_not_in_first = in_second - in_first
+
+    ips = ips1 + list(in_second_but_not_in_first)
     conn.close()
+
     return ips
 
 
@@ -354,54 +376,139 @@ def insert_shodan_data(dataframe, table, thread, org_name, failed):
     return failed
 
 
+def execute_dnsmonitor_data(dataframe, table):
+    """Insert DNSMonitor data."""
+    conn = connect()
+    tpls = [tuple(x) for x in dataframe.to_numpy()]
+    cols = ",".join(list(dataframe.columns))
+    sql = """INSERT INTO {}({}) VALUES %s
+    ON CONFLICT (domain_permutation, organizations_uid)
+    DO UPDATE SET ipv4 = EXCLUDED.ipv4,
+        ipv6 = EXCLUDED.ipv6,
+        date_observed = EXCLUDED.date_observed,
+        mail_server = EXCLUDED.mail_server,
+        name_server = EXCLUDED.name_server,
+        sub_domain_uid = EXCLUDED.sub_domain_uid,
+        data_source_uid = EXCLUDED.data_source_uid;"""
+    cursor = conn.cursor()
+    extras.execute_values(
+        cursor,
+        sql.format(table, cols),
+        tpls,
+    )
+    conn.commit()
+
+
+def execute_dnsmonitor_alert_data(dataframe, table):
+    """Insert DNSMonitor alerts."""
+    conn = connect()
+    tpls = [tuple(x) for x in dataframe.to_numpy()]
+    cols = ",".join(list(dataframe.columns))
+    sql = """INSERT INTO {}({}) VALUES %s
+    ON CONFLICT (alert_type, sub_domain_uid, date, new_value)
+    DO NOTHING;"""
+    cursor = conn.cursor()
+    extras.execute_values(
+        cursor,
+        sql.format(table, cols),
+        tpls,
+    )
+    conn.commit()
+
+
+def getSubdomain(domain):
+    """Get subdomain."""
+    conn = connect()
+    try:
+        cur = conn.cursor()
+        sql = """select * from sub_domains sd
+                where sd.sub_domain = %s;"""
+        cur.execute(sql, [domain])
+        sub = cur.fetchall()
+        cur.close()
+        return sub[0][0]
+    except (Exception, psycopg2.DatabaseError) as error:
+        print("Adding domain to the sub-domain table")
+    finally:
+        if conn is not None:
+            close(conn)
+
+
+def getRootdomain(domain):
+    """Get root domain."""
+    conn = connect()
+    cur = conn.cursor()
+    sql = """SELECT * FROM root_domains rd
+        WHERE rd.root_domain = '{}'"""
+    cur.execute(sql.format(domain))
+    root = cur.fetchone()
+    cur.close()
+    return root
+
+
+def addRootdomain(root_domain, pe_org_uid, source_uid, org_name):
+    """Add root domain."""
+    conn = connect()
+    ip_address = str(socket.gethostbyname(root_domain))
+    sql = """insert into root_domains(root_domain, organizations_uid, organization_name, data_source_uid, ip_address)
+            values ('{}', '{}', '{}', '{}', '{}');"""
+    cur = conn.cursor()
+    cur.execute(sql.format(root_domain, pe_org_uid, org_name, source_uid, ip_address))
+    conn.commit()
+    cur.close()
+
+
+def addSubdomain(conn, domain, pe_org_uid, root):
+    """Add a subdomain into the database."""
+    conn = connect()
+    if root:
+        root_domain = domain
+    else:
+        root_domain = domain.split(".")[-2:]
+        root_domain = ".".join(root_domain)
+    cur = conn.cursor()
+    date = datetime.today().strftime("%Y-%m-%d")
+    cur.callproc(
+        "insert_sub_domain",
+        (False, date, domain, pe_org_uid, "findomain", root_domain, None),
+    )
+    LOGGER.info("Success adding domain %s to subdomains table.", domain)
+    conn.commit()
+    close(conn)
+
+
+def org_root_domains(conn, org_uid):
+    """Get root domains from database given the org_uid."""
+    conn = connect()
+    try:
+        cur = conn.cursor()
+        sql = """select * from root_domains rd
+                where rd.organizations_uid = %s;"""
+        cur.execute(sql, [org_uid])
+        roots = cur.fetchall()
+        keys = (
+            "root_uid",
+            "org_uid",
+            "root_domain",
+            "ip_address",
+            "data_source_uid",
+            "enumerate_subs",
+        )
+        roots = [dict(zip(keys, values)) for values in roots]
+        cur.close()
+        return roots
+    except (Exception, psycopg2.DatabaseError) as error:
+        LOGGER.error("There was a problem with your database query %s", error)
+    finally:
+        if conn is not None:
+            close(conn)
+
+
 def query_orgs_rev():
     """Query orgs in reverse."""
     conn = connect()
     sql = "SELECT * FROM organizations WHERE report_on is True ORDER BY organizations_uid DESC;"
     df = pd.read_sql_query(sql, conn)
-    close(conn)
-    return df
-
-
-def getSubdomain(conn, domain):
-    """Get subdomains given a domain from the databases."""
-    cur = conn.cursor()
-    sql = """SELECT * FROM sub_domains sd
-        WHERE sd.sub_domain = %(domain)s"""
-    cur.execute(sql, {"domain": domain})
-    sub = cur.fetchone()
-    cur.close()
-    return sub
-
-
-def addSubdomain(conn, domain, pe_org_uid):
-    """Add a subdomain into the database."""
-    root_domain = domain.split(".")[-2:]
-    root_domain = ".".join(root_domain)
-    cur = conn.cursor()
-    cur.callproc(
-        "insert_sub_domain", (domain, pe_org_uid, "findomain", root_domain, None)
-    )
-    LOGGER.info("Success adding domain %s to subdomains table.", domain)
-
-
-def getDataSource(conn, source):
-    """Get datasource information from a database."""
-    cur = conn.cursor()
-    sql = """SELECT * FROM data_source WHERE name=%(s)s"""
-    cur.execute(sql, {"s": source})
-    source = cur.fetchone()
-    cur.close()
-    return source
-
-
-def org_root_domains(conn, org_uid):
-    """Get root domains from database given the org_uid."""
-    sql = """
-        select * from root_domains rd
-        where rd.organizations_uid = %(org_id)s;
-    """
-    df = pd.read_sql_query(sql, conn, params={"org_id": org_uid})
     return df
 
 
