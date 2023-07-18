@@ -52,6 +52,20 @@ Options:
 
 ```
 
+## Examples ##
+
+Run shodan on DHS and DOT:
+
+```
+pe-source shodan --orgs=DHS,DOT
+```
+
+Run Cybersixgill mentions on DHS and include social media data:
+
+```
+pe-source cybersixgill --cybersix-methods=mentions --orgs=DHS --soc_med_included
+```
+
 ## Contributing ##
 
 We welcome contributions!  Please see [`CONTRIBUTING.md`](CONTRIBUTING.md) for
