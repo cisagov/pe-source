@@ -56,13 +56,13 @@ Options:
 
 Run shodan on DHS and DOT:
 
-```
+```console
 pe-source shodan --orgs=DHS,DOT
 ```
 
 Run Cybersixgill mentions on DHS and include social media data:
 
-```
+```console
 pe-source cybersixgill --cybersix-methods=mentions --orgs=DHS --soc_med_included
 ```
 
