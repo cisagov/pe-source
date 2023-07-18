@@ -1,11 +1,11 @@
 """Use DNS twist to fuzz domain names and cross check with a blacklist."""
 # Standard Python Libraries
+import contextlib
 import datetime
 import json
 import logging
 import pathlib
 import traceback
-import contextlib
 
 # Third-Party Libraries
 import dnstwist
@@ -17,9 +17,9 @@ from .data.pe_db.db_query_source import (
     addSubdomain,
     connect,
     get_data_source_uid,
+    get_orgs,
     getSubdomain,
     org_root_domains,
-    get_orgs,
 )
 
 date = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -49,7 +49,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except:
+            except Exception:
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -64,7 +64,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except:
+        except Exception:
             dshield_attacks = 0
             dshield_count = 0
 
@@ -83,7 +83,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
                 malicious = True
                 attacks = int(str(response).split("attacks: ")[1].split("<")[0])
                 reports = int(str(response).split("reports: ")[1].split("<")[0])
-            except:
+            except Exception:
                 malicious = False
                 dshield_attacks = 0
                 dshield_count = 0
@@ -96,7 +96,7 @@ def checkBlocklist(dom, sub_domain_uid, source_uid, pe_org_uid, perm_list):
             malicious = True
             dshield_attacks = attacks
             dshield_count = len(threats)
-        except:
+        except Exception:
             dshield_attacks = 0
             dshield_count = 0
 

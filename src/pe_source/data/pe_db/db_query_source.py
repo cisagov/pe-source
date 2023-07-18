@@ -376,46 +376,6 @@ def insert_shodan_data(dataframe, table, thread, org_name, failed):
     return failed
 
 
-def execute_dnsmonitor_data(dataframe, table):
-    """Insert DNSMonitor data."""
-    conn = connect()
-    tpls = [tuple(x) for x in dataframe.to_numpy()]
-    cols = ",".join(list(dataframe.columns))
-    sql = """INSERT INTO {}({}) VALUES %s
-    ON CONFLICT (domain_permutation, organizations_uid)
-    DO UPDATE SET ipv4 = EXCLUDED.ipv4,
-        ipv6 = EXCLUDED.ipv6,
-        date_observed = EXCLUDED.date_observed,
-        mail_server = EXCLUDED.mail_server,
-        name_server = EXCLUDED.name_server,
-        sub_domain_uid = EXCLUDED.sub_domain_uid,
-        data_source_uid = EXCLUDED.data_source_uid;"""
-    cursor = conn.cursor()
-    extras.execute_values(
-        cursor,
-        sql.format(table, cols),
-        tpls,
-    )
-    conn.commit()
-
-
-def execute_dnsmonitor_alert_data(dataframe, table):
-    """Insert DNSMonitor alerts."""
-    conn = connect()
-    tpls = [tuple(x) for x in dataframe.to_numpy()]
-    cols = ",".join(list(dataframe.columns))
-    sql = """INSERT INTO {}({}) VALUES %s
-    ON CONFLICT (alert_type, sub_domain_uid, date, new_value)
-    DO NOTHING;"""
-    cursor = conn.cursor()
-    extras.execute_values(
-        cursor,
-        sql.format(table, cols),
-        tpls,
-    )
-    conn.commit()
-
-
 def getSubdomain(domain):
     """Get subdomain."""
     conn = connect()
@@ -427,7 +387,7 @@ def getSubdomain(domain):
         sub = cur.fetchall()
         cur.close()
         return sub[0][0]
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, psycopg2.DatabaseError):
         print("Adding domain to the sub-domain table")
     finally:
         if conn is not None:
