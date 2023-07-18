@@ -1,11 +1,11 @@
 """Use DNS twist to fuzz domain names and cross check with a blacklist."""
 # Standard Python Libraries
+import contextlib
 import datetime
 import json
 import logging
 import pathlib
 import traceback
-import contextlib
 
 # Third-Party Libraries
 import dnstwist
@@ -17,9 +17,9 @@ from .data.pe_db.db_query_source import (
     addSubdomain,
     connect,
     get_data_source_uid,
+    get_orgs,
     getSubdomain,
     org_root_domains,
-    get_orgs,
 )
 
 date = datetime.datetime.now().strftime("%Y-%m-%d")

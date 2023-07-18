@@ -3,9 +3,11 @@
 # although this import is not directly used, it populates the value
 # package_name.__version__, which is used to get version information about this
 # Python package.
-from ._version import __version__  # noqa: F401
+# Standard Python Libraries
 import logging
 from logging.handlers import RotatingFileHandler
+
+from ._version import __version__  # noqa: F401
 
 __all__ = ["cybersixgill", "shodan"]
 CENTRAL_LOGGING_FILE = "pe_reports_logging.log"

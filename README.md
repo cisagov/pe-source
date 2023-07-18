@@ -6,7 +6,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/cisagov/pe-source/develop/badge.svg)](https://snyk.io/test/github/cisagov/pe-source)
 
 This package is used to gather and store data for the CISA Posture & Exposure Reports
-[P&E Reports] (https://github.com/cisagov/pe-reports). 
+[P&E Reports] (https://github.com/cisagov/pe-reports).
 
 Data of interest include *Exposed Credentials, Domain Masquerading, Malware,
 Inferred Vulnerabilities and the Dark Web*. The data collected for the reports

@@ -7,10 +7,10 @@ from unittest.mock import patch
 
 # Third-Party Libraries
 import pandas as pd
+from pe_reports import CENTRAL_LOGGING_FILE
 import pytest
 
 # cisagov Libraries
-from pe_reports import CENTRAL_LOGGING_FILE
 import pe_source.cybersixgill
 import pe_source.data.sixgill.api
 import pe_source.dnstwistscript
