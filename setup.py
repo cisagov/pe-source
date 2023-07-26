@@ -87,10 +87,10 @@ setup(
     package_data={
         "pe_source": [
             "data/*",
-            "data/shodan/*",
-            "data/sixgill/*",
             "data/dnsmonitor/*",
             "data/pe_db/*",
+            "data/shodan/*",
+            "data/sixgill/*",
         ],
     },
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
@@ -123,7 +123,7 @@ setup(
             "pytest",
         ]
     },
-    # Conveniently allows one to run the CLI tool as `pe-reports` or 'pe-mailer'
+    # Conveniently allows one to run the CLI tool as `pe-source'
     entry_points={
         "console_scripts": [
             "pe-source = pe_source.pe_scripts:main",
