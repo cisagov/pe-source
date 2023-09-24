@@ -9,13 +9,14 @@
 pe_reports_logging.log
 src/pe_source/data/dnstwist_output.txt
 
-
 ## Python ##
 __pycache__
 .coverage
 .mypy_cache
 .pytest_cache
 .python-version
-.vscode
 *.egg-info
 dist
+
+## IDE ##
+.vscode
