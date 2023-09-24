@@ -18,11 +18,11 @@ Options:
                                     orgs in the pe database. Orgs in the list must match the
                                     IDs in the cyhy-db. E.g. DHS,DHS_ICE,DOC
                                     [default: all]
-  -csg --cybersix-methods=METHODS   A comma-separated list of cybersixgill methods to run.
+  -c --cybersix-methods=METHODS     A comma-separated list of cybersixgill methods to run.
                                     If not specified, all will run. Valid values are "alerts",
                                     "credentials", "mentions", "topCVEs". E.g. alerts,mentions.
                                     [default: all]
-  -sc --soc_med_included            Include social media posts from cybersixgill in data collection.
+  -s --soc-med-included             Include social media posts from cybersixgill in data collection.
 """
 
 # Standard Python Libraries

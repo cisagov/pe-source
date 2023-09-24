@@ -47,6 +47,7 @@ Options:
                                     If not specified, all will run. Valid values are "alerts",
                                     "credentials", "mentions", "topCVEs". E.g. alerts,mentions.
                                     [default: all]
+  -s --soc-med-included             Include social media posts from cybersixgill in data collection.
 
 ```
 
