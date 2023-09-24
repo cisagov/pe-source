@@ -2,6 +2,13 @@
 # Files already tracked by Git are not affected.
 # See: https://git-scm.com/docs/gitignore
 
+## macOS ##
+.DS_Store
+
+## Project Specific ##
+pe_reports_logging.log
+src/pe_source/data/dnstwist_output.txt
+
 ## Python ##
 __pycache__
 .coverage
@@ -10,3 +17,6 @@ __pycache__
 .python-version
 *.egg-info
 dist
+
+## IDE ##
+.vscode

@@ -1,5 +1,5 @@
 """
-This is the setup module for the example project.
+This is the setup module for the pe-source project.
 
 Based on:
 
@@ -42,10 +42,10 @@ def get_version(version_file):
 
 
 setup(
-    name="example",
+    name="pe_source",
     # Versions should comply with PEP440
-    version=get_version("src/example/_version.py"),
-    description="Example Python library",
+    version=get_version("src/pe_source/_version.py"),
+    description="Posture and Exposure Source Library",
     long_description=readme(),
     long_description_content_type="text/markdown",
     # Landing page for CISA's cybersecurity mission
@@ -74,9 +74,6 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
@@ -85,13 +82,33 @@ setup(
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="skeleton",
+    keywords="posture exposure source",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
-    package_data={"example": ["data/*.txt"]},
+    package_data={
+        "pe_source": [
+            "data/*",
+            "data/dnsmonitor/*",
+            "data/pe_db/*",
+            "data/shodan/*",
+            "data/sixgill/*",
+        ],
+    },
     py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
     include_package_data=True,
-    install_requires=["docopt", "schema", "setuptools >= 24.2.0"],
+    install_requires=[
+        "click",
+        "docopt",
+        "dnstwist",
+        "dshield",
+        "dnspython == 2.2.1",
+        "importlib_resources == 5.4.0",
+        "pandas == 1.5.1",
+        "psycopg2-binary == 2.9.3",
+        "retry == 0.9.2",
+        "schema == 0.7.5",
+        "shodan == 1.27.0",
+    ],
     extras_require={
         "test": [
             "coverage",
@@ -107,6 +124,10 @@ setup(
             "pytest",
         ]
     },
-    # Conveniently allows one to run the CLI tool as `example`
-    entry_points={"console_scripts": ["example = example.example:main"]},
+    # Conveniently allows one to run the CLI tool as `pe-source'
+    entry_points={
+        "console_scripts": [
+            "pe-source = pe_source.pe_source:main",
+        ]
+    },
 )
