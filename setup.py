@@ -127,7 +127,7 @@ setup(
     # Conveniently allows one to run the CLI tool as `pe-source'
     entry_points={
         "console_scripts": [
-            "pe-source = pe_source.pe_scripts:main",
+            "pe-source = pe_source.pe_source:main",
         ]
     },
 )

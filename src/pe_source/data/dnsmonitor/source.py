@@ -12,7 +12,7 @@ import requests
 def get_monitored_domains(token):
     """Get the domains being monitored."""
     org_names_df = pd.read_csv(
-        "/var/www/pe-reports/src/pe_source/data/dnsmonitor/root_domains_dnsmonitor.csv"
+        "src/pe_source/data/dnsmonitor/root_domains_dnsmonitor.csv"
     )
     url = "https://dns.argosecure.com/dhs/api/GetDomains"
     payload = {}
@@ -21,13 +21,14 @@ def get_monitored_domains(token):
     response = requests.request("GET", url, headers=headers, data=payload).json()
     domain_df = pd.DataFrame(response)
 
-    # Sync domainid's with org names
-    domain_df["org"] = "NA"
-    for org_index, org_row in org_names_df.iterrows():
-        for domain_index, domain_row in domain_df.iterrows():
-            if org_row["domain_name"] == domain_row["domainName"]:
-                domain_df.at[domain_index, "org"] = org_row["org"]
-    return domain_df
+    # Merge dataframes to get domain IDs for each organization
+    merged_df = domain_df.merge(
+        org_names_df, left_on="domainName", right_on="domain_name", how="left"
+    )
+    merged_df["org"].fillna("NA", inplace=True)
+    merged_df.drop(columns=["domain_name"], inplace=True)
+
+    return merged_df
 
 
 def get_domain_alerts(token, domain_ids, from_date, to_date):

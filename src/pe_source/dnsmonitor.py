@@ -108,9 +108,7 @@ class DNSMonitor:
                         )
                     sub_domain = getSubdomain(root_domain)
 
-                # Add subdomain_uid to associated alert
-                sub_domain_uid = sub_domain[0]
-                alerts_df.at[alert_index, "sub_domain_uid"] = sub_domain_uid
+                alerts_df.at[alert_index, "sub_domain_uid"] = sub_domain
 
                 # Get DNS records for each domain permutation
                 dom_perm = alert_row["domainPermutation"]

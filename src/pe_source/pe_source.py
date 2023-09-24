@@ -122,7 +122,7 @@ def main():
         validated_args["DATA_SOURCE"],
         validated_args["--orgs"],
         validated_args["--cybersix-methods"],
-        validated_args["--soc_med_included"],
+        validated_args["--soc-med-included"],
     )
 
     # Stop logging and clean up
