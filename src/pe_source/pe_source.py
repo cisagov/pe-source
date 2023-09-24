@@ -1,7 +1,7 @@
 """A tool for gathering pe source data.
 
 Usage:
-    pe-source DATA_SOURCE [--log-level=LEVEL] [--orgs=ORG_LIST] [--cybersix-methods=METHODS] [--soc_med_included]
+    pe-source DATA_SOURCE [--log-level=LEVEL] [--orgs=ORG_LIST] [--cybersix-methods=METHODS] [--soc-med-included]
 
 Arguments:
   DATA_SOURCE                       Source to collect data from. Valid values are "cybersixgill",
