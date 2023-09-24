@@ -14,7 +14,7 @@ from pe_source import CENTRAL_LOGGING_FILE
 import pe_source.cybersixgill
 import pe_source.data.sixgill.api
 import pe_source.dnstwistscript
-import pe_source.pe_scripts
+import pe_source.pe_source
 import pe_source.shodan
 
 log_levels = (
@@ -48,7 +48,7 @@ def test_source_stdout_version(capsys):
     """Verify that version string sent to stdout agrees with the module version."""
     with pytest.raises(SystemExit):
         with patch.object(sys, "argv", ["bogus", "--version"]):
-            pe_source.pe_scripts.main()
+            pe_source.pe_source.main()
     captured = capsys.readouterr()
     assert (
         captured.out == f"{PROJECT_VERSION}\n"
@@ -91,7 +91,7 @@ def test_source_log_levels(level):
                 ), "root logger should not have handlers yet"
                 return_code = None
                 try:
-                    pe_source.pe_scripts.main()
+                    pe_source.pe_source.main()
                 except SystemExit as sys_exit:
                     return_code = sys_exit.code
                 assert (
@@ -117,7 +117,7 @@ def test_source_bad_log_level():
     ):
         return_code = None
         try:
-            pe_source.pe_scripts.main()
+            pe_source.pe_source.main()
         except SystemExit as sys_exit:
             return_code = sys_exit.code
         assert return_code == 1, "main() should exit with error"
@@ -138,7 +138,7 @@ def test_source_is_cybersixgill():
             pe_source.cybersixgill.Cybersixgill, "run_cybersixgill"
         ) as mock_sixgill:
             with patch.object(pe_source.shodan.Shodan, "run_shodan") as mock_shodan:
-                pe_source.pe_scripts.main()
+                pe_source.pe_source.main()
                 mock_sixgill.assert_called_with(), "cybersixgill should be called"
                 mock_shodan.assert_not_called(), "shodan should not be called"
 
@@ -157,7 +157,7 @@ def test_source_is_shodan():
             pe_source.cybersixgill.Cybersixgill, "run_cybersixgill"
         ) as mock_sixgill:
             with patch.object(pe_source.shodan.Shodan, "run_shodan") as mock_shodan:
-                pe_source.pe_scripts.main()
+                pe_source.pe_source.main()
                 mock_shodan.assert_called_with(), "shodan should be called"
                 mock_sixgill.assert_not_called(), "cybersixgill should not be called"
 
@@ -174,7 +174,7 @@ def test_bad_source():
     ):
         return_code = None
         try:
-            pe_source.pe_scripts.main()
+            pe_source.pe_source.main()
         except SystemExit as sys_exit:
             return_code = sys_exit.code
         assert return_code == 1, "should exit with error"
@@ -213,7 +213,7 @@ def test_cybersix_methods_all(
             ]
         }
         mock_get_source_id.return_value = "source_uid"
-        pe_source.pe_scripts.main()
+        pe_source.pe_source.main()
         mock_sixgill_alerts.assert_called_with(
             "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid", False
         )
@@ -254,7 +254,7 @@ def test_cybersix_methods_alerts(
             ]
         }
         mock_get_source_id.return_value = "source_uid"
-        pe_source.pe_scripts.main()
+        pe_source.pe_source.main()
         mock_sixgill_alerts.assert_called_with(
             "TestOrg", "sixgill_org_id", "pe_org_uid", "source_uid", False
         )
@@ -322,7 +322,7 @@ def test_shodan_search(
             {"org_uid": "pe_org_uid", "org_name": "Test Org", "cyhy_db_name": "TestOrg"}
         ]
         mock_shodan_api.return_value = ["api-key-1"]
-        pe_source.pe_scripts.main()
+        pe_source.pe_source.main()
         mock_shodan_thread.assert_called_with(
             "api-key-1",
             [
