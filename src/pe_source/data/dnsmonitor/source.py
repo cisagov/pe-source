@@ -1,5 +1,6 @@
 """DNSMonitor API calls and DNS lookups."""
 # Standard Python Libraries
+import ipaddress
 import socket
 
 # Third-Party Libraries
@@ -64,12 +65,12 @@ def get_dns_records(dom_perm):
 
     # A
     try:
-        ip_address = str(socket.gethostbyname(dom_perm))
-        if ":" in ip_address:
-            ipv6 = ip_address
+        ip_str = str(socket.gethostbyname(dom_perm))
+        if ipaddress.ip_address(ip_str).version == 6:
+            ipv6 = ip_str
             ipv4 = ""
         else:
-            ipv4 = ip_address
+            ipv4 = ip_str
             ipv6 = ""
     except Exception:
         ipv4 = ""
