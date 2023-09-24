@@ -135,22 +135,22 @@ class Cybersixgill:
         """Get alerts."""
         LOGGER.info("Fetching alert data for %s.", org_id)
         soc_med_platforms = [
-            "twitter",
-            "Twitter",
-            "reddit",
-            "Reddit",
-            "Parler",
-            "parler",
-            "linkedin",
-            "Linkedin",
             "discord",
             "forum_discord",
-            "raddle",
-            "telegram",
-            "jabber",
-            "ICQ",
             "icq",
+            "ICQ",
+            "jabber",
+            "linkedin",
+            "Linkedin",
             "mastodon",
+            "parler",
+            "Parler",
+            "raddle",
+            "reddit",
+            "Reddit",
+            "telegram",
+            "twitter",
+            "Twitter",
         ]
 
         # Fetch alert data with sixgill_org_id
