@@ -18,6 +18,7 @@ from pe_source.data.pe_db.db_query_source import (
 )
 
 LOGGER = logging.getLogger(__name__)
+RETRY_COUNT = 7
 
 
 def run_shodan_thread(api, org_chunk, thread_name):
@@ -101,7 +102,7 @@ def search_shodan(thread_name, ips, api, start, end, org_uid, org_name, failed):
     for i, ip_chunk in enumerate(ip_chunks):
         count = i + 1
         try_count = 1
-        while try_count < 7:
+        while try_count < RETRY_COUNT:
             try:
                 results = api.host(ip_chunk)
                 for r in results:

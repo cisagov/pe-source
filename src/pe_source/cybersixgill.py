@@ -84,6 +84,7 @@ class Cybersixgill:
                 count += 1
                 # Get sixgill_org_id associated with the PE org
                 try:
+                    # Cybersixgill lists their ID as the 6th entry in the org list
                     sixgill_org_id = sixgill_orgs[org_id][5]
                 except KeyError as err:
                     LOGGER.error("PE org is not listed in Cybersixgill.")
