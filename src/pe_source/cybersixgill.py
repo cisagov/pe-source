@@ -75,10 +75,7 @@ class Cybersixgill:
             if self.get_topCVEs(source_uid) == 1:
                 failed.append("Top CVEs")
 
-        list = ""
-        for pe_org in pe_orgs:
-            list = list + pe_org["cyhy_db_name"] + ","
-        print(list)
+        LOGGER.info(",".join([org["cyhy_db_name"] for org in pe_orgs]))
         for pe_org in pe_orgs:
             org_id = pe_org["cyhy_db_name"]
             pe_org_uid = pe_org["org_uid"]
