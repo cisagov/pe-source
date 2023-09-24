@@ -29,7 +29,7 @@ from .data.sixgill.source import (
     top_cves,
 )
 
-# Set todays date formatted YYYY-MM-DD and the start_date 30 days prior
+# Set todays date and the start_date 30 days prior
 TODAY = date.today()
 DAYS_BACK = timedelta(days=30)
 MENTIONS_DAYS_BACK = timedelta(days=16)
@@ -75,10 +75,7 @@ class Cybersixgill:
             if self.get_topCVEs(source_uid) == 1:
                 failed.append("Top CVEs")
 
-        list = ""
-        for pe_org in pe_orgs:
-            list = list + pe_org["cyhy_db_name"] + ","
-        print(list)
+        LOGGER.info(",".join([org["cyhy_db_name"] for org in pe_orgs]))
         for pe_org in pe_orgs:
             org_id = pe_org["cyhy_db_name"]
             pe_org_uid = pe_org["org_uid"]
