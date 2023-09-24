@@ -5,11 +5,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/cisagov/pe-source/badge.svg?branch=develop)](https://coveralls.io/github/cisagov/pe-source?branch=develop)
 [![Known Vulnerabilities](https://snyk.io/test/github/cisagov/pe-source/develop/badge.svg)](https://snyk.io/test/github/cisagov/pe-source)
 
-This package is used to gather and store data for the CISA Posture & Exposure Reports
-[P&E Reports](https://github.com/cisagov/pe-reports).
+This package is used to gather and store data for the CISA
+[Posture & Exposure Reports](https://github.com/cisagov/pe-reports).
 
 Data of interest include *Exposed Credentials, Domain Masquerading, Malware,
-Inferred Vulnerabilities and the Dark Web*. The data collected for the reports
+Inferred Vulnerabilities, and the Dark Web*. The data collected for the reports
 is gathered on the 1st and 15th of each month.
 
 ## Requirements ##
@@ -19,9 +19,7 @@ is gathered on the 1st and 15th of each month.
 ## Installation ##
 
 - `git clone https://github.com/cisagov/pe-source.git`
-
 - Add database/API credentials to `src/pe_source/data/pe_db/database.ini`
-
 - `pip install -e .`
 
 ## Run P&E Source ##
@@ -45,7 +43,7 @@ Options:
                                     orgs in the pe database. Orgs in the list must match the
                                     IDs in the cyhy-db. E.g. DHS,DHS_ICE,DOC
                                     [default: all]
-  -csg --cybersix-methods=METHODS   A comma-separated list of cybersixgill methods to run.
+  -c --cybersix-methods=METHODS     A comma-separated list of Cybersixgill methods to run.
                                     If not specified, all will run. Valid values are "alerts",
                                     "credentials", "mentions", "topCVEs". E.g. alerts,mentions.
                                     [default: all]

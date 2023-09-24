@@ -53,8 +53,8 @@ setup(
     # Additional URLs for this project per
     # https://packaging.python.org/guides/distributing-packages-using-setuptools/#project-urls
     project_urls={
-        "Source": "https://github.com/cisagov/pe-reports",
-        "Tracker": "https://github.com/cisagov/pe-reports/issues",
+        "Source": "https://github.com/cisagov/pe-source",
+        "Tracker": "https://github.com/cisagov/pe-source/issues",
     },
     # Author details
     author="Cybersecurity and Infrastructure Security Agency",
@@ -81,7 +81,7 @@ setup(
     ],
     python_requires=">=3.6",
     # What does your project relate to?
-    keywords="posture and exposure source",
+    keywords="posture exposure source",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     package_data={
