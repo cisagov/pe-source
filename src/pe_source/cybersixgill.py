@@ -29,7 +29,7 @@ from .data.sixgill.source import (
     top_cves,
 )
 
-# Set todays date formatted YYYY-MM-DD and the start_date 30 days prior
+# Set todays date and the start_date 30 days prior
 TODAY = date.today()
 DAYS_BACK = timedelta(days=30)
 MENTIONS_DAYS_BACK = timedelta(days=16)
