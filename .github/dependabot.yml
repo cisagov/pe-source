@@ -11,25 +11,27 @@ updates:
       # Managed by cisagov/skeleton-generic
       - dependency-name: actions/cache
       - dependency-name: actions/checkout
+      - dependency-name: actions/dependency-review-action
       - dependency-name: actions/setup-go
       - dependency-name: actions/setup-python
+      - dependency-name: cisagov/action-job-preamble
       - dependency-name: cisagov/setup-env-github-action
-      - dependency-name: crazy-max/ghaction-dump-context
       - dependency-name: crazy-max/ghaction-github-labeler
-      - dependency-name: crazy-max/ghaction-github-status
-      - dependency-name: GitHubSecurityLab/actions-permissions
+      - dependency-name: github/codeql-action
       - dependency-name: hashicorp/setup-packer
       - dependency-name: hashicorp/setup-terraform
       - dependency-name: mxschmitt/action-tmate
 <<<<<<< HEAD
+<<<<<<< HEAD
       # # Managed by cisagov/pe-source
 =======
       - dependency-name: step-security/harden-runner
+=======
+>>>>>>> eb5f53e20803b078ea441605573c17704a0b0412
       # # Managed by cisagov/skeleton-python-library
 >>>>>>> 31075efe1d4b9ce6461c03e3a4b8ba7f64b1c604
       # - dependency-name: actions/download-artifact
       # - dependency-name: actions/upload-artifact
-      # - dependency-name: github/codeql-action
     package-ecosystem: github-actions
     schedule:
       interval: weekly
