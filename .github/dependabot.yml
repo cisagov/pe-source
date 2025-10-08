@@ -5,30 +5,51 @@
 # these updates when the pull request(s) in the appropriate skeleton are merged
 # and Lineage processes these changes.
 
-version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
+  - directory: /
     ignore:
       # Managed by cisagov/skeleton-generic
       - dependency-name: actions/cache
       - dependency-name: actions/checkout
+      - dependency-name: actions/dependency-review-action
+      - dependency-name: actions/labeler
       - dependency-name: actions/setup-go
       - dependency-name: actions/setup-python
+      - dependency-name: cisagov/action-job-preamble
+      - dependency-name: cisagov/setup-env-github-action
+      - dependency-name: crazy-max/ghaction-github-labeler
+      - dependency-name: github/codeql-action
+      - dependency-name: hashicorp/setup-packer
       - dependency-name: hashicorp/setup-terraform
       - dependency-name: mxschmitt/action-tmate
+<<<<<<< HEAD
+<<<<<<< HEAD
       # # Managed by cisagov/pe-source
+=======
+      - dependency-name: step-security/harden-runner
+=======
+>>>>>>> eb5f53e20803b078ea441605573c17704a0b0412
+      # # Managed by cisagov/skeleton-python-library
+>>>>>>> 31075efe1d4b9ce6461c03e3a4b8ba7f64b1c604
       # - dependency-name: actions/download-artifact
       # - dependency-name: actions/upload-artifact
-
-  - package-ecosystem: "pip"
-    directory: "/"
+    labels:
+      # dependabot default we need to replicate
+      - dependencies
+      # This matches our label definition in .github/labels.yml as opposed to
+      # dependabot's default of `github_actions`.
+      - github-actions
+    package-ecosystem: github-actions
     schedule:
-      interval: "weekly"
+      interval: weekly
 
-  - package-ecosystem: "terraform"
-    directory: "/"
+  - directory: /
+    package-ecosystem: pip
     schedule:
-      interval: "weekly"
+      interval: weekly
+
+  - directory: /
+    package-ecosystem: terraform
+    schedule:
+      interval: weekly
+version: 2
